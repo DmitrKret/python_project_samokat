@@ -1,0 +1,59 @@
+Работа с Базой Данных
+Задание 1:
+Запрос, который выводит список логинов с количеством их заказов в статусе “В доставке”:
+SELECT
+  c.login,
+  COUNT(o.id) AS total_orders
+FROM
+  «Couriers» AS c
+INNER JOIN
+  «Orders» AS o ON c.id = o.«courierId»
+WHERE
+  o.«inDelivery» = TRUE
+GROUP BY
+  c.login;
+
+Условия: зарегистрированы два курьера: «mona» и «sha», создано новых три заказа. Один курьер принял один заказ, второй курьер принял 2 заказа.
+
+Запрос-ответ:
+scooter_rent=# SELECT c.login, COUNT(o.id) as total_orders FROM "Couriers" AS c INNER JOIN "Orders" AS o ON c.id = o."courierId" WHERE o."inDelivery" = true GROUP BY c.login;
+
+ login | total_orders 
+-------+--------------
+ mona  |            2
+ sha   |            4
+(2 rows)
+
+Вывод: В базе данных записывается неверное кол-во доставок в статусе "inDelivery" - задвоение кол-ва!
+
+Задание 2:
+Проверка, что статусы заказов в базе данных  записываются корректно.
+ Вывод всех трекеров заказов и их статусы:
+ 
+SELECT track,
+       CASE 
+           WHEN finished = true  THEN 2
+           WHEN canсelled = true  THEN -1
+           WHEN «inDelivery» = true  THEN 1
+           ELSE 0
+       END AS status 
+FROM «Orders»;
+
+Запрос-Ответ:
+scooter_rent=# SELECT track, CASE WHEN finished = true THEN 2 WHEN "inDelivery" = true THEN 1 WHEN cancelled = true THEN -1 ELSE 0 END AS status FROM "Orders";
+ track  | status 
+--------+--------
+ 111885 |      0
+ 912829 |      0
+ 362143 |      0
+ 760887 |      0
+ 514952 |      0
+ 528185 |      0
+ 559346 |      1
+ 559346 |      1
+ 666025 |      0
+ 520922 |      2
+ 520922 |      2
+(11 rows)
+
+Вывод: статус заказа «cancelled» записывается некорректно (в таблице как «0» ( напр. в таблице отмененный заказ №666025)), остальные статусы  заказов записываются корректно, но с задвоенным количеством треков!
